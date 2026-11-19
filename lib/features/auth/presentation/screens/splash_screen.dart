@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rental_project/core/routes/app_routes.dart';
 import 'package:rental_project/core/widgets/app_logo.dart';
 import 'package:rental_project/features/auth/auth_routes.dart';
+import 'package:rental_project/features/auth/domain/repositories/auth_repository.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,7 +17,10 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(milliseconds: 1900), () {
-      if (mounted) Get.offAllNamed(AuthRoutes.login);
+      if (!mounted) return;
+      // saved session (account or guest) -> straight to home
+      final hasSession = Get.find<AuthRepository>().hasSession;
+      Get.offAllNamed(hasSession ? Routes.home : AuthRoutes.login);
     });
   }
 

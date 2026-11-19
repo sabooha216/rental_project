@@ -37,6 +37,7 @@ dependencies:
   get: ^4.7.3
   flutter_localizations:
     sdk: flutter
+  get_storage: ^2.1.1
 
 dev_dependencies:
   flutter_test:

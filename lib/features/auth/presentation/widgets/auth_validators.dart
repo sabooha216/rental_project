@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:rental_project/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:rental_project/core/utils/phone.dart';
 
 abstract class AuthValidators {
   static String? required(String? v) =>
@@ -12,7 +12,7 @@ abstract class AuthValidators {
 
   static String? phone(String? v) {
     if (v == null || v.trim().isEmpty) return 'required'.tr;
-    final p = AuthController.normalizePhone(v);
+    final p = normalizePhone(v);
     return RegExp(r'^\d{9,15}$').hasMatch(p) ? null : 'invalid_phone'.tr;
   }
 

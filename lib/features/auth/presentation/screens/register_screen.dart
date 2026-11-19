@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:rental_project/features/auth/data/models/app_user.dart';
+import 'package:rental_project/features/auth/domain/entities/app_user.dart';
 import 'package:rental_project/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:rental_project/features/auth/presentation/widgets/auth_field.dart';
 import 'package:rental_project/features/auth/presentation/widgets/auth_scaffold.dart';

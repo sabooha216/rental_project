@@ -18,6 +18,6 @@ class AppUser {
   final String id;
   final String name;
   final String phone;
-  final String password; // TODO: replace with real auth (hashed / server side)
+  final String password; // TODO: hash / move to server side auth
   final UserRole role;
 }
