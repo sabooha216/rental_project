@@ -16,6 +16,10 @@ class FinanceController extends GetxController {
   final contractsRepo = Get.find<ContractsRepository>();
   final tenantsRepo = Get.find<TenantsRepository>();
 
+  // dues list state
+  final search = ''.obs;
+  final statusFilter = 0.obs; // 0 all | 1 overdue | 2 open | 3 paid
+
   // payment form state
   final selTenant = Rxn<Tenant>();
   final method = PayMethod.cash.obs;
@@ -27,6 +31,23 @@ class FinanceController extends GetxController {
 
   String tenantNameOfDue(Due d) =>
       tenantsRepo.byId(contractsRepo.byId(d.contractId).tenantId).name;
+
+  List<Due> get filteredDues {
+    final q = search.value.trim().toLowerCase();
+    return repo.dues.where((d) {
+      final st = repo.statusOf(d);
+      final ok = switch (statusFilter.value) {
+        1 => st == DueStatus.overdue || st == DueStatus.partialOverdue,
+        2 => st == DueStatus.unpaid || st == DueStatus.partial,
+        3 => st == DueStatus.paid,
+        _ => true,
+      };
+      if (!ok) return false;
+      if (q.isEmpty) return true;
+      return tenantNameOfDue(d).toLowerCase().contains(q) ||
+          dueLabel(d).toLowerCase().contains(q);
+    }).toList();
+  }
 
   // ---------------- payment form ----------------
   Future<void> openPaymentForm() async {
@@ -72,12 +93,97 @@ class FinanceController extends GetxController {
     ));
   }
 
-  void _savePayment() {
+  Future<void> _savePayment() async {
     final a = double.tryParse(amountCtl.text) ?? 0;
     final t = selTenant.value;
     if (a <= 0 || t == null) return;
-    repo.addPayment(t.id, a, method.value);
-    Get.back();
+    try {
+      await repo.addPayment(t.id, a, method.value);
+      Get.back();
+    } catch (_) {
+      toast('save_error'.tr);
+    }
+  }
+
+  // ---------------- void payment ----------------
+  Future<void> voidPayment(Payment p) async {
+    final r = await askText('void_payment', ['void_reason']);
+    if (r == null) return;
+    if (r[0].isEmpty) {
+      toast('reason_required'.tr);
+      return;
+    }
+    try {
+      await repo.voidPayment(p, r[0]);
+    } catch (_) {
+      toast('save_error'.tr);
+    }
+  }
+
+  // ---------------- due details (allocations list + reverse) ----------------
+  Future<void> openDueDetails(Due d) async {
+    await Get.dialog(AlertDialog(
+      title: Text(dueLabel(d)),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: Obx(() {
+            final list = repo.allocs.where((a) => a.dueId == d.id).toList();
+            final remaining = repo.remainingOf(d);
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${'due_date'.tr}: ${fmtDate(d.date)}'),
+                Text('${'amount'.tr}: ${money(d.amount)}'),
+                Text('${'remaining'.tr}: ${money(remaining)}'),
+                const Divider(),
+                Text('allocations'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
+                if (list.isEmpty) Text('no_allocations'.tr),
+                for (final a in list)
+                  ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(money(a.amount)),
+                    subtitle: Text(_receiptOf(a.paymentId)),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.undo),
+                      tooltip: 'reverse_confirm'.tr,
+                      onPressed: () => reverseAllocation(a),
+                    ),
+                  ),
+              ],
+            );
+          }),
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Get.back(), child: Text('close'.tr)),
+        FilledButton(
+          onPressed: () {
+            Get.back();
+            openAllocateForm(d);
+          },
+          child: Text('allocate'.tr),
+        ),
+      ],
+    ));
+  }
+
+  String _receiptOf(int paymentId) {
+    for (final p in repo.payments) {
+      if (p.id == paymentId) return p.receiptNo;
+    }
+    return '';
+  }
+
+  Future<void> reverseAllocation(Alloc a) async {
+    if (!await confirm('reverse_confirm'.tr)) return;
+    try {
+      await repo.reverseAllocation(a.id);
+    } catch (_) {
+      toast('save_error'.tr);
+    }
   }
 
   // ---------------- allocation form ----------------
@@ -109,7 +215,8 @@ class FinanceController extends GetxController {
                 items: usable
                     .map((p) => DropdownMenuItem(
                         value: p,
-                        child: Text('${fmtDate(p.date)} - ${'available'.tr} ${money(repo.creditOf(p))}')))
+                        child: Text(
+                            '${p.receiptNo} - ${'available'.tr} ${money(repo.creditOf(p))}')))
                     .toList(),
                 onChanged: (v) {
                   selPayment.value = v;
@@ -130,7 +237,7 @@ class FinanceController extends GetxController {
     ));
   }
 
-  void _saveAllocation(Due d) {
+  Future<void> _saveAllocation(Due d) async {
     final p = selPayment.value;
     final a = double.tryParse(allocCtl.text) ?? 0;
     if (p == null || a <= 0) return;
@@ -142,8 +249,12 @@ class FinanceController extends GetxController {
       toast('over_due'.tr);
       return;
     }
-    repo.allocate(p, d, a);
-    Get.back();
+    try {
+      await repo.allocate(p, d, a);
+      Get.back();
+    } catch (_) {
+      toast('save_error'.tr);
+    }
   }
 
   @override

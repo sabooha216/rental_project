@@ -40,16 +40,29 @@ class DueTile extends StatelessWidget {
 class PaymentTile extends StatelessWidget {
   final Payment payment;
   final String tenantName;
-  const PaymentTile({super.key, required this.payment, required this.tenantName});
+  final Widget? trailing;
+  const PaymentTile({super.key, required this.payment, required this.tenantName, this.trailing});
 
   @override
   Widget build(BuildContext context) {
     final repo = Get.find<FinanceRepository>();
-    return Obx(() => ListTile(
-          leading: const Icon(Icons.receipt_long),
-          title: Text('$tenantName - ${money(payment.amount)} (${'m_${payment.method.name}'.tr})'),
-          subtitle: Text(
-              '${fmtDate(payment.date)} | ${'unallocated'.tr}: ${money(repo.creditOf(payment))}'),
-        ));
+    return Obx(() {
+      final credit = repo.creditOf(payment);
+      final voided = payment.voided;
+      return ListTile(
+        leading: Icon(voided ? Icons.block : Icons.receipt_long,
+            color: voided ? Colors.grey : null),
+        title: Text(
+          '${payment.receiptNo}  $tenantName - ${money(payment.amount)} (${'m_${payment.method.name}'.tr})',
+          style: voided
+              ? const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey)
+              : null,
+        ),
+        subtitle: Text(voided
+            ? '${'voided'.tr}: ${payment.voidReason ?? ''}'
+            : '${fmtDate(payment.date)} | ${'unallocated'.tr}: ${money(credit)}'),
+        trailing: trailing,
+      );
+    });
   }
 }

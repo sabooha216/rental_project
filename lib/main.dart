@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:rental_project/core/bindings/initial_binding.dart';
-import 'package:rental_project/core/locale/app_translation.dart';
+import 'package:rental_project/core/locale/extra_translation.dart';
 import 'package:rental_project/core/routes/app_pages.dart';
 import 'package:rental_project/core/routes/auth_middleware.dart';
+import 'package:rental_project/core/services/app_services.dart';
 import 'package:rental_project/core/services/storage_service.dart';
 import 'package:rental_project/core/settings/settings_controller.dart';
 import 'package:rental_project/core/theme/app_theme.dart';
@@ -14,6 +15,7 @@ import 'package:rental_project/features/settings/settings_routes.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StorageService.init();
+  await initServices(); // opens the Drift database + loads saved data
   runApp(const App());
 }
 
@@ -29,7 +31,7 @@ class App extends StatelessWidget {
         darkTheme: AppTheme.dark,
         themeMode: SettingsController.initialTheme(),
         // language (Arabic / English) - restored from GetStorage
-        translations: AppTranslation(),
+        translations: MergedTranslation(),
         locale: SettingsController.initialLocale(),
         fallbackLocale: const Locale('en', 'US'),
         supportedLocales: const [Locale('ar', 'SA'), Locale('en', 'US')],
@@ -53,7 +55,6 @@ class App extends StatelessWidget {
 GetPage _guard(GetPage p) => GetPage(
       name: p.name,
       page: p.page,
-      title: p.title,
       binding: p.binding,
       bindings: p.bindings,
       transition: p.transition,
