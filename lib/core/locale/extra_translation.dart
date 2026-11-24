@@ -73,6 +73,12 @@ class ExtraTranslation {
       'expiring_contracts': 'عقود تنتهي خلال 90 يوم',
       'top_debtors': 'أعلى المتأخرين',
       'nothing_here': 'لا يوجد شي هنا',
+      'quick_actions': 'عمليات سريعة',
+      'qa_payment': 'تسجيل دفعة',
+      'qa_contract': 'عقد جديد',
+      'qa_tenant': 'مستأجر جديد',
+      'qa_unit': 'وحدة جديدة',
+      'recent_payments': 'آخر الدفعات',
     },
     'en_US': {
       'save_error': 'Could not save. Please try again.',
@@ -132,6 +138,12 @@ class ExtraTranslation {
       'expiring_contracts': 'Contracts ending within 90 days',
       'top_debtors': 'Top overdue tenants',
       'nothing_here': 'Nothing here',
+      'quick_actions': 'Quick actions',
+      'qa_payment': 'Record payment',
+      'qa_contract': 'New contract',
+      'qa_tenant': 'New tenant',
+      'qa_unit': 'New unit',
+      'recent_payments': 'Recent payments',
     },
   };
 }

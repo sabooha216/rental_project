@@ -71,16 +71,9 @@ class HomeScreen extends GetView<HomeController> {
           ),
           body: IndexedStack(
             index: i,
-            children: const [
-              UnitsScreen(),
-              TenantsScreen(),
-              ContractsScreen(),
-              FinanceScreen(),
-              DashboardScreen(),
-            ],
+            children: const [DashboardScreen(), UnitsScreen(), TenantsScreen(), ContractsScreen(), FinanceScreen()],
           ),
-          floatingActionButton: i == 4
-              ? null
+          floatingActionButton: i == 0 ? null
               : FloatingActionButton.extended(
                   onPressed: controller.onAdd,
                   icon: const Icon(Icons.add),
@@ -91,6 +84,8 @@ class HomeScreen extends GetView<HomeController> {
             onDestinationSelected: controller.change,
             destinations: [
               NavigationDestination(
+                  icon: const Icon(Icons.dashboard), label: 'dashboard'.tr),
+              NavigationDestination(
                   icon: const Icon(Icons.apartment), label: 'units'.tr),
               NavigationDestination(
                   icon: const Icon(Icons.people), label: 'tenants'.tr),
@@ -99,8 +94,7 @@ class HomeScreen extends GetView<HomeController> {
               NavigationDestination(
                   icon: const Icon(Icons.account_balance_wallet),
                   label: 'finance'.tr),
-              NavigationDestination(
-                  icon: const Icon(Icons.dashboard), label: 'dashboard'.tr),
+              
             ],
           ),
         );

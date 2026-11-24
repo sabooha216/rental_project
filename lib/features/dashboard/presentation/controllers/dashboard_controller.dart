@@ -1,11 +1,16 @@
 import 'package:get/get.dart';
 import 'package:rental_project/features/contracts/data/repositories/contracts_repository.dart';
 import 'package:rental_project/features/contracts/domain/entities/contract.dart';
+import 'package:rental_project/features/contracts/presentation/controllers/contracts_controller.dart';
 import 'package:rental_project/features/finance/data/repositories/finance_repository.dart';
 import 'package:rental_project/features/finance/domain/entities/due.dart';
+import 'package:rental_project/features/finance/domain/entities/payment.dart';
+import 'package:rental_project/features/finance/presentation/controllers/finance_controller.dart';
 import 'package:rental_project/features/tenants/data/repositories/tenants_repository.dart';
 import 'package:rental_project/features/tenants/domain/entities/tenant.dart';
+import 'package:rental_project/features/tenants/presentation/controllers/tenants_controller.dart';
 import 'package:rental_project/features/units/data/repositories/units_repository.dart';
+import 'package:rental_project/features/units/presentation/controllers/units_controller.dart';
 
 /// All numbers are computed from the repositories (nothing stored).
 class DashboardController extends GetxController {
@@ -14,6 +19,13 @@ class DashboardController extends GetxController {
   final contractsRepo = Get.find<ContractsRepository>();
   final finance = Get.find<FinanceRepository>();
 
+  // ---- quick actions (reuse the forms of each feature) ----
+  void addPayment() => Get.find<FinanceController>().openPaymentForm();
+  void addContract() => Get.find<ContractsController>().openForm();
+  void addTenant() => Get.find<TenantsController>().addTenant();
+  void addUnit() => Get.find<UnitsController>().addUnit();
+
+  // ---- numbers ----
   List<Due> get _overdue => finance.dues.where((d) {
         final s = finance.statusOf(d);
         return s == DueStatus.overdue || s == DueStatus.partialOverdue;
@@ -60,6 +72,12 @@ class DashboardController extends GetxController {
         .map((e) => (tenant: tenantsRepo.byId(e.key), amount: e.value))
         .toList()
       ..sort((a, b) => b.amount.compareTo(a.amount));
+    return list.take(5).toList();
+  }
+
+  List<Payment> get recentPayments {
+    final list = finance.payments.where((p) => !p.voided).toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
     return list.take(5).toList();
   }
 }
