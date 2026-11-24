@@ -1,3 +1,4 @@
+import 'package:rental_project/features/dashboard/presentation/bindings/dashboard_binding.dart';
 import 'package:get/get.dart';
 import 'package:rental_project/features/contracts/presentation/bindings/contracts_binding.dart';
 import 'package:rental_project/features/finance/presentation/bindings/finance_binding.dart';
@@ -14,5 +15,6 @@ class HomeBinding extends Bindings {
     TenantsBinding().dependencies();
     ContractsBinding().dependencies();
     FinanceBinding().dependencies();
+    DashboardBinding().dependencies();
   }
 }

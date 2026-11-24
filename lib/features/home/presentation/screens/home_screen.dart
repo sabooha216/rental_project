@@ -4,6 +4,7 @@ import 'package:rental_project/core/settings/settings_controller.dart';
 import 'package:rental_project/features/auth/auth_routes.dart';
 import 'package:rental_project/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:rental_project/features/contracts/presentation/screens/contracts_screen.dart';
+import 'package:rental_project/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:rental_project/features/finance/presentation/screens/finance_screen.dart';
 import 'package:rental_project/features/home/presentation/controllers/home_controller.dart';
 import 'package:rental_project/features/settings/settings_routes.dart';
@@ -70,22 +71,36 @@ class HomeScreen extends GetView<HomeController> {
           ),
           body: IndexedStack(
             index: i,
-            children: const [UnitsScreen(), TenantsScreen(), ContractsScreen(), FinanceScreen()],
+            children: const [
+              UnitsScreen(),
+              TenantsScreen(),
+              ContractsScreen(),
+              FinanceScreen(),
+              DashboardScreen(),
+            ],
           ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: controller.onAdd,
-            icon: const Icon(Icons.add),
-            label: Text(HomeController.addKeys[i].tr),
-          ),
+          floatingActionButton: i == 4
+              ? null
+              : FloatingActionButton.extended(
+                  onPressed: controller.onAdd,
+                  icon: const Icon(Icons.add),
+                  label: Text(HomeController.addKeys[i].tr),
+                ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: i,
             onDestinationSelected: controller.change,
             destinations: [
-              NavigationDestination(icon: const Icon(Icons.apartment), label: 'units'.tr),
-              NavigationDestination(icon: const Icon(Icons.people), label: 'tenants'.tr),
-              NavigationDestination(icon: const Icon(Icons.description), label: 'contracts'.tr),
               NavigationDestination(
-                  icon: const Icon(Icons.account_balance_wallet), label: 'finance'.tr),
+                  icon: const Icon(Icons.apartment), label: 'units'.tr),
+              NavigationDestination(
+                  icon: const Icon(Icons.people), label: 'tenants'.tr),
+              NavigationDestination(
+                  icon: const Icon(Icons.description), label: 'contracts'.tr),
+              NavigationDestination(
+                  icon: const Icon(Icons.account_balance_wallet),
+                  label: 'finance'.tr),
+              NavigationDestination(
+                  icon: const Icon(Icons.dashboard), label: 'dashboard'.tr),
             ],
           ),
         );

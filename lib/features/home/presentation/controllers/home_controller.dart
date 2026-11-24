@@ -5,8 +5,8 @@ import 'package:rental_project/features/tenants/presentation/controllers/tenants
 import 'package:rental_project/features/units/presentation/controllers/units_controller.dart';
 
 class HomeController extends GetxController {
-  static const titleKeys = ['units', 'tenants', 'contracts', 'finance'];
-  static const addKeys = ['add_unit', 'add_tenant', 'add_contract', 'add_payment'];
+  static const titleKeys = ['units', 'tenants', 'contracts', 'finance', 'dashboard'];
+ static const addKeys = ['add_unit', 'add_tenant', 'add_contract', 'add_payment', ''];
 
   final index = 0.obs;
 
